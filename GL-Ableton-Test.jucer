@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="kFalBE" name="GL-Ableton-Test" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+<JUCERPROJECT id="kFalBE" name="GL-Ableton-Test" projectType="audioplug" useAppConfig="1"
+              addUsingNamespaceToJuceHeader="1" jucerFormatVersion="1">
   <MAINGROUP id="PIL3so" name="GL-Ableton-Test">
     <GROUP id="{6488F094-1239-422F-26C3-553F0B14CFFF}" name="Source">
       <FILE id="Z8Zdy7" name="PluginProcessor.cpp" compile="1" resource="0"

@@ -15,15 +15,20 @@
 /**
 */
 
-class ColourBall : public juce::Component
+class ColourBall : public juce::Component, public juce::OpenGLRenderer
 {
 public:
     ColourBall();
 
 private:
+    juce::OpenGLContext glContext;
+
     juce::Random rand;
 
-    void paint(juce::Graphics& g) override;
+    void newOpenGLContextCreated() override {}
+    void  	openGLContextClosing() override{}
+    void            renderOpenGL() override;
+
 };
 
 class GLAbletonTestAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer
@@ -40,7 +45,7 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     GLAbletonTestAudioProcessor& audioProcessor;
-    juce::OpenGLContext glContext;
+    
 
     juce::OwnedArray<ColourBall> colourBalls;
     juce::Random rand;

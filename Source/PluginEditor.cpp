@@ -11,27 +11,31 @@
 
 ColourBall::ColourBall()
 {
-    
+    glContext.setRenderer(this);
+    glContext.setContinuousRepainting(true);
+    glContext.setSwapInterval(1);
 }
 
-void ColourBall::paint (juce::Graphics& g)
+void ColourBall::renderOpenGL()
 {
+    std::unique_ptr<LowLevelGraphicsContext> glRenderer(createOpenGLGraphicsContext(glContext, getWidth(), getHeight()));
+    Graphics g(*glRenderer);
     const auto area = getLocalBounds().toFloat();
-    juce::ColourGradient gradient  (juce::Colour ((juce::uint8)rand.nextInt (255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
-                                    area.getCentreX(), area.getCentreY(),
-                                    juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)), 
-                                    area.getTopLeft().getX(), area.getTopLeft().getY(),
-                                    true);
-    g.setGradientFill (gradient);
-    g.fillEllipse (area);
+    juce::ColourGradient gradient(juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
+        area.getCentreX(), area.getCentreY(),
+        juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
+        area.getTopLeft().getX(), area.getTopLeft().getY(),
+        true);
+    g.setGradientFill(gradient);
+    g.fillEllipse(area);
 }
+
+
 
 //==============================================================================
 GLAbletonTestAudioProcessorEditor::GLAbletonTestAudioProcessorEditor (GLAbletonTestAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    glContext.setComponentPaintingEnabled(true);
-    glContext.attachTo(*this);
 
     for (int b = 0; b < 50; b++)
     {
