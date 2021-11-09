@@ -76,7 +76,7 @@ void GLAbletonTestAudioProcessorEditor::renderOpenGL()
 
         {
             const ScopedLock sl(b->glVarLock);
-            g.addTransform(AffineTransform().translated(b->getBounds().getCentreX(), b->getBounds().getCentreY()));
+            g.addTransform(AffineTransform().translated(b->getBounds().getX(), b->getBounds().getY()));
         }
 
         b->paintGl(g);
