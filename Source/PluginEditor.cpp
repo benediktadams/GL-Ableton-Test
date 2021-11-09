@@ -34,8 +34,9 @@ GLAbletonTestAudioProcessorEditor::GLAbletonTestAudioProcessorEditor (GLAbletonT
 {
     glContext.setRenderer(this);
     glContext.setContinuousRepainting(true);
+    glContext.setSwapInterval(1);
 
-    for (int b = 0; b < 5; b++)
+    for (int b = 0; b < 100; b++)
     {
         auto ball = colourBalls.add(new ColourBall());
         addAndMakeVisible(ball);
