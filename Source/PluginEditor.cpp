@@ -16,20 +16,17 @@ ColourBall::ColourBall()
 
 void ColourBall::paintGl (Graphics& g)
 {
-        juce::ColourGradient gradient(juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
-            area.getCentreX(), area.getCentreY(),
-            juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
-            area.getTopLeft().getX(), area.getTopLeft().getY(),
-            true);
-        g.setGradientFill(gradient);
-        g.fillEllipse(area);
+    Rectangle<float> area(areaX.get(), areaY.get(), areaW.get(), areaH.get());
+    juce::ColourGradient gradient(juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
+        area.getCentreX(), area.getCentreY(),
+        juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
+        area.getTopLeft().getX(), area.getTopLeft().getY(),
+        true);
+    g.setGradientFill(gradient);
+    g.fillEllipse(area);
 }
 
-void ColourBall::resized()
-{
-    const ScopedLock sl (glVarLock);
-    area = getLocalBounds().toFloat();
-}
+
 
 
 //==============================================================================
@@ -44,8 +41,6 @@ GLAbletonTestAudioProcessorEditor::GLAbletonTestAudioProcessorEditor (GLAbletonT
     for (int b = 0; b < 100; b++)
     {
         auto ball = colourBalls.add(new ColourBall());
-        addAndMakeVisible(ball);
-        ball->setSize (20, 20);
     }
     setSize (400, 300);
     startTimerHz(30);
@@ -53,6 +48,7 @@ GLAbletonTestAudioProcessorEditor::GLAbletonTestAudioProcessorEditor (GLAbletonT
 
 GLAbletonTestAudioProcessorEditor::~GLAbletonTestAudioProcessorEditor()
 {
+    const ScopedLock lock(exitLock);
 }
 
 void GLAbletonTestAudioProcessorEditor::timerCallback()
@@ -61,24 +57,23 @@ void GLAbletonTestAudioProcessorEditor::timerCallback()
     {
         auto randX = getWidth() * rand.nextFloat();
         auto randY = getHeight() * rand.nextFloat();
-        b->setCentrePosition(randX, randY);
+        b->areaX.set(randX);
+        b->areaY.set(randY);
+        b->areaW.set(20);
+        b->areaH.set(20);
     }
 }
 
 void GLAbletonTestAudioProcessorEditor::renderOpenGL()
 {
+    const ScopedLock lock(exitLock);
     std::unique_ptr<LowLevelGraphicsContext> glRenderer(createOpenGLGraphicsContext(glContext, getWidth(), getHeight()));
-    Graphics g(*glRenderer);
-
-    for (auto b : colourBalls)
+    Graphics g (*glRenderer);
+    g.fillAll(Colours::black);
+    for (auto& b : colourBalls)
     {
         Graphics::ScopedSaveState save(g); 
-
-        {
-            const ScopedLock sl(b->glVarLock);
-            g.addTransform(AffineTransform().translated(b->getBounds().getX(), b->getBounds().getY()));
-        }
-
+        g.addTransform(AffineTransform().translated(b->areaX.get(), b->areaY.get()));
         b->paintGl(g);
     }
        
@@ -93,5 +88,7 @@ void GLAbletonTestAudioProcessorEditor::paint (juce::Graphics& g)
 
 void GLAbletonTestAudioProcessorEditor::resized()
 {
+
+
 
 }

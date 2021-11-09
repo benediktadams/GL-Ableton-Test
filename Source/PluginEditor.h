@@ -16,20 +16,23 @@
 */
 
 
-class ColourBall : public juce::Component
+class ColourBall 
 {
 public:
     ColourBall();
     void paintGl (Graphics& g) ;
-    void resized() override;
 
     CriticalSection glVarLock;
+
+    Atomic<float> areaX;
+    Atomic<float> areaY;
+    Atomic<float> areaW;
+    Atomic<float> areaH;
 
 private:
     juce::Random rand;
 
-    
-    Rectangle<float> area;
+
 
 
    
@@ -61,5 +64,6 @@ private:
 
     void timerCallback() override;
 
+    CriticalSection exitLock;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GLAbletonTestAudioProcessorEditor)
 };
