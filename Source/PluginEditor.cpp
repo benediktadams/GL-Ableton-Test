@@ -14,18 +14,22 @@ ColourBall::ColourBall()
 
 }
 
-void ColourBall::paint (Graphics& g)
+void ColourBall::paintGl (Graphics& g)
 {
-    const auto area = getLocalBounds().toFloat();
-    juce::ColourGradient gradient(juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
-        area.getCentreX(), area.getCentreY(),
-        juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
-        area.getTopLeft().getX(), area.getTopLeft().getY(),
-        true);
-    g.setGradientFill(gradient);
-    g.fillEllipse(area);
+        juce::ColourGradient gradient(juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
+            area.getCentreX(), area.getCentreY(),
+            juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
+            area.getTopLeft().getX(), area.getTopLeft().getY(),
+            true);
+        g.setGradientFill(gradient);
+        g.fillEllipse(area);
 }
 
+void ColourBall::resized()
+{
+    const ScopedLock sl (glVarLock);
+    area = getLocalBounds().toFloat();
+}
 
 
 //==============================================================================
@@ -35,6 +39,7 @@ GLAbletonTestAudioProcessorEditor::GLAbletonTestAudioProcessorEditor (GLAbletonT
     glContext.setRenderer(this);
     glContext.setContinuousRepainting(true);
     glContext.setSwapInterval(1);
+    glContext.attachTo(*this);
 
     for (int b = 0; b < 100; b++)
     {
@@ -66,14 +71,24 @@ void GLAbletonTestAudioProcessorEditor::renderOpenGL()
     Graphics g(*glRenderer);
 
     for (auto b : colourBalls)
-        b->paint(g);
+    {
+        Graphics::ScopedSaveState save(g); 
+
+        {
+            const ScopedLock sl(b->glVarLock);
+            g.addTransform(AffineTransform().translated(b->getBounds().getCentreX(), b->getBounds().getCentreY()));
+        }
+
+        b->paintGl(g);
+    }
+       
 }
 
 //==============================================================================
 void GLAbletonTestAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-   g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+  // g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 }
 
 void GLAbletonTestAudioProcessorEditor::resized()

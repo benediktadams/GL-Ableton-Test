@@ -20,11 +20,16 @@ class ColourBall : public juce::Component
 {
 public:
     ColourBall();
-    void paint(Graphics& g) override;
+    void paintGl (Graphics& g) ;
+    void resized() override;
+
+    CriticalSection glVarLock;
+
 private:
-
-
     juce::Random rand;
+
+    
+    Rectangle<float> area;
 
 
    
