@@ -11,15 +11,11 @@
 
 ColourBall::ColourBall()
 {
-    glContext.setRenderer(this);
-    glContext.setContinuousRepainting(true);
-    glContext.setSwapInterval(1);
+
 }
 
-void ColourBall::renderOpenGL()
+void ColourBall::paint (Graphics& g)
 {
-    std::unique_ptr<LowLevelGraphicsContext> glRenderer(createOpenGLGraphicsContext(glContext, getWidth(), getHeight()));
-    Graphics g(*glRenderer);
     const auto area = getLocalBounds().toFloat();
     juce::ColourGradient gradient(juce::Colour((juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255), (juce::uint8)rand.nextInt(255)),
         area.getCentreX(), area.getCentreY(),
@@ -36,8 +32,10 @@ void ColourBall::renderOpenGL()
 GLAbletonTestAudioProcessorEditor::GLAbletonTestAudioProcessorEditor (GLAbletonTestAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
+    glContext.setRenderer(this);
+    glContext.setContinuousRepainting(true);
 
-    for (int b = 0; b < 50; b++)
+    for (int b = 0; b < 5; b++)
     {
         auto ball = colourBalls.add(new ColourBall());
         addAndMakeVisible(ball);
@@ -61,11 +59,20 @@ void GLAbletonTestAudioProcessorEditor::timerCallback()
     }
 }
 
+void GLAbletonTestAudioProcessorEditor::renderOpenGL()
+{
+    std::unique_ptr<LowLevelGraphicsContext> glRenderer(createOpenGLGraphicsContext(glContext, getWidth(), getHeight()));
+    Graphics g(*glRenderer);
+
+    for (auto b : colourBalls)
+        b->paint(g);
+}
+
 //==============================================================================
 void GLAbletonTestAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+   g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 }
 
 void GLAbletonTestAudioProcessorEditor::resized()
